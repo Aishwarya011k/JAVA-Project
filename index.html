@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disaster Resource Relocation System</title>
+    <style>
+        /* Global Styles and Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Main Container */
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Header Section */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        /* Input and Select Fields */
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: #f9f9f9;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Output Message Box */
+        .output-container {
+            margin-top: 30px;
+            display: none;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .output-box {
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Allocation Status Indicator */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+
+        .status-indicator.allocated {
+            background: #4caf50;
+            color: white;
+        }
+
+        .status-indicator.pending {
+            background: #ff9800;
+            color: white;
+        }
+
+        .status-indicator.failed {
+            background: #f44336;
+            color: white;
+        }
+
+        /* Progress Tracker */
+        .progress-tracker {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid rgba(0,0,0,0.1);
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            position: relative;
+        }
+
+        .progress-steps::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #e0e0e0;
+            z-index: 0;
+        }
+
+        .progress-bar {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            height: 3px;
+            background: #4caf50;
+            z-index: 1;
+            transition: width 1s ease;
+        }
+
+        .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.5s ease;
+        }
+
+        .step.active .step-circle {
+            background: #4caf50;
+            color: white;
+            box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.2);
+        }
+
+        .step.completed .step-circle {
+            background: #4caf50;
+            color: white;
+        }
+
+        .step-label {
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .step.active .step-label,
+        .step.completed .step-label {
+            color: #4caf50;
+            font-weight: 600;
+        }
+
+        /* Color Coding for Different Resource Types */
+        .output-box.food {
+            background: #e8f5e9;
+            border-color: #4caf50;
+        }
+
+        .output-box.medical {
+            background: #e3f2fd;
+            border-color: #2196f3;
+        }
+
+        .output-box.rescue {
+            background: #fff3e0;
+            border-color: #ff9800;
+        }
+
+        .output-box h3 {
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .output-box.food h3 {
+            color: #2e7d32;
+        }
+
+        .output-box.medical h3 {
+            color: #1565c0;
+        }
+
+        .output-box.rescue h3 {
+            color: #e65100;
+        }
+
+        .output-details {
+            line-height: 1.8;
+            color: #555;
+        }
+
+        .output-details strong {
+            color: #333;
+        }
+
+        /* Icon Styles */
+        .icon {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .container {
+                padding: 25px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            input[type="text"],
+            input[type="number"],
+            select {
+                padding: 10px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+            <h1>🚨 Disaster Resource Relocation</h1>
+            <p>Efficient resource management for emergency response</p>
+        </div>
+
+        <!-- Resource Input Form -->
+        <!-- Form ID and action attributes ready for backend integration -->
+        <form id="resourceForm" action="/api/relocate-resource" method="POST">
+            
+            <!-- Resource Type Selection -->
+            <div class="form-group">
+                <label for="resourceType">Resource Type</label>
+                <select id="resourceType" name="resourceType" required>
+                    <option value="">Select a resource type</option>
+                    <option value="Food">Food</option>
+                    <option value="Medical">Medical</option>
+                    <option value="Rescue">Rescue</option>
+                </select>
+            </div>
+
+            <!-- Quantity Input -->
+            <div class="form-group">
+                <label for="quantity">Quantity</label>
+                <input 
+                    type="number" 
+                    id="quantity" 
+                    name="quantity" 
+                    placeholder="Enter quantity (e.g., 100)" 
+                    min="1" 
+                    required
+                >
+            </div>
+
+            <!-- Location Input -->
+            <div class="form-group">
+                <label for="location">Destination Location</label>
+                <input 
+                    type="text" 
+                    id="location" 
+                    name="location" 
+                    placeholder="Enter location (e.g., Mumbai, Zone A)" 
+                    required
+                >
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="submit-btn">
+                Initiate Relocation
+            </button>
+        </form>
+
+        <!-- Output Display Container -->
+        <div id="outputContainer" class="output-container">
+            <div id="outputBox" class="output-box">
+                <h3 id="outputTitle"></h3>
+                <div id="outputDetails" class="output-details"></div>
+                
+                <!-- Allocation Status and Progress Tracker -->
+                <div class="progress-tracker">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h4 style="margin: 0; color: #333;">Allocation Status:</h4>
+                        <span id="statusIndicator" class="status-indicator"></span>
+                    </div>
+                    
+                    <div class="progress-steps">
+                        <div class="progress-bar" id="progressBar"></div>
+                        
+                        <div class="step" id="step1">
+                            <div class="step-circle">📝</div>
+                            <div class="step-label">Requested</div>
+                        </div>
+                        
+                        <div class="step" id="step2">
+                            <div class="step-circle">✓</div>
+                            <div class="step-label">Allocated</div>
+                        </div>
+                        
+                        <div class="step" id="step3">
+                            <div class="step-circle">🚚</div>
+                            <div class="step-label">In Transit</div>
+                        </div>
+                        
+                        <div class="step" id="step4">
+                            <div class="step-circle">📍</div>
+                            <div class="step-label">Delivered</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Resource Relocation Classes - Simulating Polymorphism
+
+        /**
+         * Base Resource class
+         * This serves as the parent class for all resource types
+         */
+        class Resource {
+            constructor(type, quantity, location) {
+                this.type = type;
+                this.quantity = quantity;
+                this.location = location;
+            }
+
+            // Method to be overridden by child classes (polymorphism)
+            getTransportMethod() {
+                return "standard transport";
+            }
+
+            // Common method to generate relocation message
+            getRelocationInfo() {
+                return {
+                    type: this.type,
+                    quantity: this.quantity,
+                    location: this.location,
+                    transportMethod: this.getTransportMethod(),
+                    timestamp: new Date().toLocaleString()
+                };
+            }
+        }
+
+        /**
+         * Food Resource Class
+         * Specialized transport: refrigerated vehicles
+         */
+        class FoodResource extends Resource {
+            getTransportMethod() {
+                return "using refrigerated transport";
+            }
+        }
+
+        /**
+         * Medical Resource Class
+         * Specialized transport: emergency medical teams
+         */
+        class MedicalResource extends Resource {
+            getTransportMethod() {
+                return "with emergency medical teams";
+            }
+        }
+
+        /**
+         * Rescue Resource Class
+         * Specialized transport: helicopters
+         */
+        class RescueResource extends Resource {
+            getTransportMethod() {
+                return "using helicopters";
+            }
+        }
+
+        /**
+         * Factory Function - Creates appropriate resource object
+         * This demonstrates polymorphism by returning different object types
+         * based on the resource type
+         */
+        function createResource(type, quantity, location) {
+            switch(type) {
+                case 'Food':
+                    return new FoodResource(type, quantity, location);
+                case 'Medical':
+                    return new MedicalResource(type, quantity, location);
+                case 'Rescue':
+                    return new RescueResource(type, quantity, location);
+                default:
+                    return new Resource(type, quantity, location);
+            }
+        }
+
+        /**
+         * Display Output Function
+         * Updates the UI with relocation information
+         */
+        function displayOutput(resourceInfo) {
+            const outputContainer = document.getElementById('outputContainer');
+            const outputBox = document.getElementById('outputBox');
+            const outputTitle = document.getElementById('outputTitle');
+            const outputDetails = document.getElementById('outputDetails');
+
+            // Get icon based on resource type
+            const icons = {
+                'Food': '🍎',
+                'Medical': '⚕️',
+                'Rescue': '🚁'
+            };
+
+            // Set color theme based on resource type
+            outputBox.className = 'output-box ' + resourceInfo.type.toLowerCase();
+
+            // Update title
+            outputTitle.innerHTML = `${icons[resourceInfo.type]} ${resourceInfo.type} Relocation Initiated`;
+
+            // Update details
+            outputDetails.innerHTML = `
+                <p><strong>Resource Type:</strong> ${resourceInfo.type}</p>
+                <p><strong>Quantity:</strong> ${resourceInfo.quantity} units</p>
+                <p><strong>Destination:</strong> ${resourceInfo.location}</p>
+                <p><strong>Transport Method:</strong> ${resourceInfo.transportMethod}</p>
+                <p><strong>Initiated At:</strong> ${resourceInfo.timestamp}</p>
+            `;
+
+            // Show the output container
+            outputContainer.style.display = 'block';
+
+            // Animate allocation status progression
+            animateAllocationStatus();
+        }
+
+        /**
+         * Animate Allocation Status
+         * Simulates the progression through allocation stages
+         */
+        function animateAllocationStatus() {
+            const statusIndicator = document.getElementById('statusIndicator');
+            const progressBar = document.getElementById('progressBar');
+            const steps = ['step1', 'step2', 'step3', 'step4'];
+            
+            let currentStep = 0;
+            
+            // Reset all steps
+            steps.forEach(id => {
+                document.getElementById(id).classList.remove('active', 'completed');
+            });
+            progressBar.style.width = '0%';
+
+            // Step 1: Requested (immediate)
+            statusIndicator.className = 'status-indicator pending';
+            statusIndicator.textContent = '⏳ Pending Allocation';
+            document.getElementById('step1').classList.add('active');
+            progressBar.style.width = '0%';
+
+            // Step 2: Allocated (after 1 second)
+            setTimeout(() => {
+                document.getElementById('step1').classList.remove('active');
+                document.getElementById('step1').classList.add('completed');
+                document.getElementById('step2').classList.add('active');
+                progressBar.style.width = '33%';
+                statusIndicator.className = 'status-indicator allocated';
+                statusIndicator.textContent = '✓ Successfully Allocated';
+            }, 1000);
+
+            // Step 3: In Transit (after 2.5 seconds)
+            setTimeout(() => {
+                document.getElementById('step2').classList.remove('active');
+                document.getElementById('step2').classList.add('completed');
+                document.getElementById('step3').classList.add('active');
+                progressBar.style.width = '66%';
+                statusIndicator.className = 'status-indicator allocated';
+                statusIndicator.textContent = '🚚 In Transit';
+            }, 2500);
+
+            // Step 4: Delivered (after 4 seconds)
+            setTimeout(() => {
+                document.getElementById('step3').classList.remove('active');
+                document.getElementById('step3').classList.add('completed');
+                document.getElementById('step4').classList.add('active');
+                progressBar.style.width = '100%';
+                statusIndicator.className = 'status-indicator allocated';
+                statusIndicator.textContent = '✓ Delivered Successfully';
+            }, 4000);
+        }
+
+        /**
+         * Form Submit Event Handler
+         * Prevents default form submission and handles relocation logic
+         */
+        document.getElementById('resourceForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent actual form submission for demo
+
+            // Get form values
+            const resourceType = document.getElementById('resourceType').value;
+            const quantity = document.getElementById('quantity').value;
+            const location = document.getElementById('location').value;
+
+            // Create resource object using factory function (polymorphism in action)
+            const resource = createResource(resourceType, quantity, location);
+
+            // Get relocation information
+            const relocationInfo = resource.getRelocationInfo();
+
+            // Display the output
+            displayOutput(relocationInfo);
+
+            // For backend integration: uncomment the following code
+            /*
+            fetch('/api/relocate-resource', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(relocationInfo)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                displayOutput(relocationInfo);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+            */
+        });
+
+        // Optional: Add smooth scroll to output when it appears
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.target.style.display === 'block') {
+                    mutation.target.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'nearest' 
+                    });
+                }
+            });
+        });
+
+        observer.observe(document.getElementById('outputContainer'), {
+            attributes: true,
+            attributeFilter: ['style']
+        });
+    </script>
+</body>
+</html>
